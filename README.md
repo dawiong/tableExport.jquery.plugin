@@ -8,5 +8,5 @@ Just sharing, for people experiencing the same problem that the download does no
 NOTE: My changes are not elegant, it's patchy since I only need it for my use case (XLS), so just giving an idea on how this may work.
 
 1. XLS only, I might decide to rework it for everything if I have time.
-2. Added regexp for <select> since if there are filter control dropdowns, I do not want to include the options in the header.
+2. Added regexp for `<select>` since if there are filter control dropdowns, I do not want to include the options in the header.
 3. This is not a permanent solution since IE may handle the iframe workaround differently in the future.
