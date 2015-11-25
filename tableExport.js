@@ -1,8 +1,10 @@
 /*
+  Modified by dawiong https://github.com/dawiong/
+*/
+
+/*
  tableExport.jquery.plugin
-
  Copyright (c) 2015 hhurz, https://github.com/hhurz/tableExport.jquery.plugin
-
  Original work Copyright (c) 2014 Giri Raj, https://github.com/kayalshri/
  Licensed under the MIT License, http://opensource.org/licenses/mit-license
 */
@@ -127,8 +129,8 @@
           saveAs(blob, defaults.fileName + '.' + defaults.type, (defaults.type != 'csv' || defaults.csvUseBOM === false));
         }
         catch (e) {
-          downloadFile(defaults.fileName + '.' + defaults.type,
-                  'data:text/' + (defaults.type == 'csv' ? 'csv' : 'plain') + ';charset=utf-8,' + encodeURIComponent(csvData));
+            downloadFile(defaults.fileName + '.' + defaults.type,
+                    'data:text/' + (defaults.type == 'csv' ? 'csv' : 'plain') + ';charset=utf-8,' + encodeURIComponent(csvData));
         }
 
       } else if (defaults.type == 'sql') {
@@ -404,7 +406,24 @@
           saveAs(blob, defaults.fileName + '.' + MSDocExt);
         }
         catch (e) {
-          downloadFile(defaults.fileName + '.' + MSDocExt, 'data:application/vnd.ms-' + MSDocType + ';base64,' + base64data);
+          var ua = window.navigator.userAgent;
+          var msie = ua.indexOf("MSIE ");
+          var fName = defaults.fileName + '.' + MSDocExt;
+          //Internet Explorer workaround by Darryl
+          if (msie > 0 || !!ua.match(/Trident.*rv\:11\./)) {
+            var frame = document.createElement("iframe");
+            document.body.appendChild(frame);
+            frame.setAttribute("style", "display:none");
+            frame.contentDocument.open("txt/html","replace");
+            frame.contentDocument.write(docFile);
+            frame.contentDocument.close();
+            frame.focus();
+
+            sa=frame.contentDocument.execCommand("SaveAs",true, fName);
+            document.body.removeChild(frame);
+          }else{
+            downloadFile(defaults.fileName + '.' + MSDocExt, 'data:application/vnd.ms-' + MSDocType + ';base64,' + base64data);
+          }
         }
 
       } else if (defaults.type == 'png') {
@@ -868,6 +887,10 @@
           }
           else {
             var text = htmlData.replace(/\n/g,'\u2028').replace(/<br\s*[\/]?>/gi, '\u2060');
+
+            //remove select options - Darryl
+            text = text.replace(/<select\b[^>]*>(.*?)<\/select>/i,'');
+
             var obj = $('<div/>').html(text).contents();
             text = '';
             $.each(obj.text().split("\u2028"), function(i, v) {
